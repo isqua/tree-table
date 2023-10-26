@@ -12,9 +12,10 @@ import {
     getFilteredRowModel,
     getExpandedRowModel,
     ColumnDef,
-    flexRender,
 } from '@tanstack/react-table'
 import { makeData, Person } from './makeData'
+import { HeaderCell } from './HeaderCell'
+import { RowRenderer } from './Row'
 
 export function Table() {
     const rerender = React.useReducer(() => ({}), {})[1]
@@ -143,49 +144,22 @@ export function Table() {
                 <thead>
                     {table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id}>
-                            {headerGroup.headers.map(header => {
-                                return (
-                                    <th key={header.id} colSpan={header.colSpan}>
-                                        {header.isPlaceholder ? null : (
-                                            <div
-                                                className={header.column.getCanSort()
-                                                    ? 'sortable'
-                                                    : ''}
-                                                onClick={header.column.getToggleSortingHandler()}
-                                            >
-                                                {flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                                {{
-                                                    asc: ' 🔼',
-                                                    desc: ' 🔽',
-                                                }[header.column.getIsSorted() as string] ?? null}
-                                            </div>
-                                        )}
-                                    </th>
-                                )
-                            })}
+                            {headerGroup.headers.map(header => (
+                                <HeaderCell
+                                    key={header.id}
+                                    header={header}
+                                />
+                            ))}
                         </tr>
                     ))}
                 </thead>
                 <tbody>
-                    {table.getRowModel().rows.map(row => {
-                        return (
-                            <tr key={row.id}>
-                                {row.getVisibleCells().map(cell => {
-                                    return (
-                                        <td key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </td>
-                                    )
-                                })}
-                            </tr>
-                        )
-                    })}
+                    {table.getRowModel().rows.map(row => (
+                        <RowRenderer
+                            key={row.id}
+                            row={row}
+                        />
+                    ))}
                 </tbody>
             </table>
             <div className="h-2" />
