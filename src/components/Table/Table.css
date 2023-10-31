@@ -22,3 +22,8 @@ tfoot {
 tfoot th {
   font-weight: normal;
 }
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}

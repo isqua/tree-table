@@ -4,8 +4,10 @@ import './Table.css'
 
 import {
     ExpandedState,
+    SortingState,
     useReactTable,
     getCoreRowModel,
+    getSortedRowModel,
     getPaginationRowModel,
     getFilteredRowModel,
     getExpandedRowModel,
@@ -21,6 +23,7 @@ export function Table() {
         () => [
             {
                 accessorKey: 'firstName',
+                enableSorting: false,
                 header: ({ table }) => (
                     <>
                         <IndeterminateCheckbox
@@ -90,6 +93,7 @@ export function Table() {
             },
             {
                 accessorKey: 'visits',
+                sortDescFirst: true,
                 header: () => <span>Visits</span>,
                 footer: props => props.column.id,
             },
@@ -108,6 +112,8 @@ export function Table() {
     )
 
     const [data, setData] = React.useState(() => makeData(100, 5, 3))
+    const [sorting, setSorting] = React.useState<SortingState>([])
+
     const refreshData = () => setData(() => makeData(100, 5, 3))
 
     const [expanded, setExpanded] = React.useState<ExpandedState>({})
@@ -117,10 +123,13 @@ export function Table() {
         columns,
         state: {
             expanded,
+            sorting,
         },
         onExpandedChange: setExpanded,
+        onSortingChange: setSorting,
         getSubRows: row => row.subRows,
         getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
@@ -138,11 +147,20 @@ export function Table() {
                                 return (
                                     <th key={header.id} colSpan={header.colSpan}>
                                         {header.isPlaceholder ? null : (
-                                            <div>
+                                            <div
+                                                className={header.column.getCanSort()
+                                                    ? 'sortable'
+                                                    : ''}
+                                                onClick={header.column.getToggleSortingHandler()}
+                                            >
                                                 {flexRender(
                                                     header.column.columnDef.header,
                                                     header.getContext()
                                                 )}
+                                                {{
+                                                    asc: ' 🔼',
+                                                    desc: ' 🔽',
+                                                }[header.column.getIsSorted() as string] ?? null}
                                             </div>
                                         )}
                                     </th>
